@@ -7,18 +7,14 @@ from multilayer import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Units.
-um = 1e-6
-nm = 1e-9
-
-# Incident angle.
+# Incidence angle.
 theta_0 = 0
 
 # Refractive indices.
-air = 1.0
+n_air = 1.0
+n_sub = 1.52 # glass
 nH = 2.35
 nL = 1.35
-glass = 1.52
 n_list = np.array([nH, nL, nH, nL, nH, nL, nH, nL, nH, nL, nH, nL,
                    nH, nL, nH, nL, nH, nL, nH, nL, nH, nL, nH], dtype=complex)
 
@@ -39,7 +35,7 @@ lam_list = np.linspace(350, 850, samples) * nm
 
 r_list = np.empty(samples)
 for i, lam in enumerate(lam_list):
-    r_list[i] = reflectance_s(lam, theta_0, air, glass, n_list, d_list)
+    r_list[i] = reflectance_s(lam, n_list, d_list, theta_0, n_air, n_sub)
 
 plt.figure()
 plt.plot(lam_list / nm, r_list*100)
