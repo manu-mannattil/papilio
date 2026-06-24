@@ -9,6 +9,7 @@ n_sub = 1.52 # substrate refractive index (glass)
 F = 70/170 # fill factor (Gaillot's estimate)
 
 # Thickness list.
+# These values are a bit different from Gaillot et al.
 d_list = np.concatenate(([95*nm, 85*nm]*8, [95*nm]))
 
 # Define wavelength region of interest.
