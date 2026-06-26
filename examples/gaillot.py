@@ -64,6 +64,5 @@ plt.plot(lam_list, r_list_avg*100, "C3-")
 plt.title("p. blumei average reflectance")
 plt.xlabel("wavelength (nm)")
 plt.ylabel("reflectance (%)")
-plt.legend()
 
 plt.show()
