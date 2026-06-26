@@ -1,9 +1,9 @@
 """Multilayer interference calculations.
 
-- Variable conventions and equations correspond to those in
-  Peatross and Ware (2015) [1].
-- Requires the Python package colour-science for CIE color matching
-  functions.
+Notes
+-----
+
+1. All distances and wavelengths are assumed to be in nm.
 
 TODO
 ----
@@ -16,20 +16,17 @@ TODO
 import numpy as np
 import colour
 
-nm = 1e-9
-um = 1e-6
-
 def reflectance(lam, n_list, d_list, theta_0=0, n_0=1, n_sub=1):
     """Compute the multilayer reflectance for unpolarized light.
 
     Parameters
     ----------
     lam : float
-        Wavelength (in meters).
+        Wavelength (in nanometers).
     n_list : array-like
         Refractive indices of layers.
     d_list : array-like
-        Thickness of layers (in meters)
+        Thickness of layers (in nanometers)
     theta_0 : float
         Initial incidence angle, default = 0.
     n_0 : float
@@ -136,7 +133,7 @@ def reflectance_to_hex(lam_list,
     Parameters
     ----------
     lam_list : array-like
-        Wavelength samples in meters.
+        Wavelength samples in nanometers.
     r_list : array-like
         Reflectance values at those wavelengths. Usually in [0, 1].
     illuminant : str
@@ -151,8 +148,7 @@ def reflectance_to_hex(lam_list,
     color : str
         Hex color, e.g. "#8FA34C".
     """
-    # Convert wavelengths to nm.
-    lam_list = np.asarray(lam_list, dtype=float) / nm
+    lam_list = np.asarray(lam_list, dtype=float)
     r_list = np.asarray(r_list, dtype=float)
 
     if np.any(np.diff(lam_list) <= 0):

@@ -19,7 +19,7 @@ n_list = np.array([nH, nL, nH, nL, nH, nL, nH, nL, nH, nL, nH, nL,
                    nH, nL, nH, nL, nH, nL, nH, nL, nH, nL, nH], dtype=complex)
 
 # Define reference wavelength and quarter-wave layer thicknesses.
-lam_f = 480 * nm
+lam_f = 480
 dH = lam_f / (4 * nH)
 dL = lam_f / (4 * nL)
 
@@ -31,14 +31,14 @@ d_list = np.array([dH, dL, dH, dL, dH, dL, dH, dL, dH, dL, dH,
 
 # Define visible wavelength region.
 samples = 500
-lam_list = np.linspace(350, 850, samples) * nm
+lam_list = np.linspace(350, 850, samples)
 
 r_list = np.empty(samples)
 for i, lam in enumerate(lam_list):
     r_list[i] = reflectance_s(lam, n_list, d_list, theta_0, n_air, n_sub)
 
 plt.figure()
-plt.plot(lam_list / nm, r_list*100)
+plt.plot(lam_list, r_list*100)
 plt.title("A broadband reflector for the visible region")
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("Reflectance (%)")
