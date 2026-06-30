@@ -3,7 +3,7 @@
 [1] https://wp.optics.arizona.edu/milster/wp-content/uploads/sites/48/2016/06/Thin-film-calculator-from-Dissertation_JunZhang_080110_optimized.pdf
 """
 
-from multilayer import *
+from papilio import *
 import numpy as np
 import matplotlib.pyplot as plt
 

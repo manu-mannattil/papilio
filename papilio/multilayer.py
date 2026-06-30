@@ -5,6 +5,8 @@ Notes
 
 1. All distances and wavelengths are assumed to be in nm.
 
+2. Equations refer to the book by Peatross and Ware [1].
+
 TODO
 ----
 

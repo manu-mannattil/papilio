@@ -8,7 +8,7 @@ Ref.: Vukusic et al., Appl. Opt., 2001.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from multilayer import *
+from papilio import *
 
 fig, ax = plt.subplots()
 

@@ -5,7 +5,7 @@ Ref.: Vukusic et al., Appl. Opt., 2001.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from multilayer import *
+from papilio import *
 from scipy.optimize import least_squares, curve_fit
 
 fig, ax = plt.subplots()

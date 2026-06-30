@@ -2,7 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from multilayer import *
+from papilio import *
 
 n_air = 1
 n_sub = 1
