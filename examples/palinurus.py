@@ -36,20 +36,23 @@ lam_list = np.linspace(325, 725, M)
 
 # Double reflection.
 # The intensity has to be squared.
-r_45 = np.array([reflectance(lam, n_list, d_list, np.pi/4, n_air, n_sub) for lam in lam_list])
-r_45 = r_45**2
+r_45_s = np.array([reflectance_s(lam, n_list, d_list, np.pi/4, n_air, n_sub) for lam in lam_list])
+r_45_p = np.array([reflectance_p(lam, n_list, d_list, np.pi/4, n_air, n_sub) for lam in lam_list])
+r_45 = 0.5*(r_45_s**2 + r_45_p**2)
 c_45 = reflectance_to_hex(lam_list, r_45)
-ax.plot(lam_list, r_45*100, color=c_45, label="45 deg")
+ax.plot(lam_list, r_45*100, color=c_45)
+ax.plot([], [], color=c_45, linewidth=10, label="45 deg")
 
 # Normal incidence.
 r_90 = np.array([reflectance(lam, n_list, d_list, 0, n_air, n_sub) for lam in lam_list])
 c_90 = reflectance_to_hex(lam_list, r_90)
-ax.plot(lam_list, r_90*100, color=c_90, label="0 deg")
+ax.plot(lam_list, r_90*100, color=c_90)
+ax.plot([], [], color=c_90, linewidth=10, label="0 deg")
 
 r_both = r_90 + r_45
 c_both = reflectance_to_hex(lam_list, r_both)
-ax.plot(lam_list, 100*r_both, color=c_both, label="0 + 45 deg")
-ax.plot([], [], color=c_both, linewidth=10, label="perceived color")
+ax.plot(lam_list, 100*r_both, color=c_both)
+ax.plot([], [], color=c_both, linewidth=10, label="0 + 45 deg")
 
 # Fig. 8 of Vukusic et al.
 ax.set_xlim(325, 725)

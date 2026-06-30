@@ -48,6 +48,7 @@ ax.plot([], [], color=color, linewidth=10, label="perceived color")
 
 # Fig. 13 of Tada et al.
 ax.set_xlim(325, 725)
+ax.set_title(r"P. ulysses reflectance")
 ax.set_xlabel("wavelength (nm)")
 ax.set_ylabel("reflectance (%)")
 ax.legend()
