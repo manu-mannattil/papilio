@@ -1,4 +1,5 @@
-misc/
+*.png
+*.pdf
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
