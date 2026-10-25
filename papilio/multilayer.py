@@ -10,7 +10,9 @@ Notes
 TODO
 ----
 
-1. There's a potential branch cut issue with arcsin().
+There's a potential branch cut issue with arcsin() when the substrate
+(i.e., final medium into which the ray exits) has a complex refractive
+index.  This is not relevant to the P. blumei experiments, however.
 
 [1] https://optics.byu.edu/docs/OpticsBook.pdf
 """
@@ -51,26 +53,26 @@ def reflectance_p(lam, n_list, d_list, theta_0=0, n_0=1, n_sub=1):
     # Total number of layers.
     N = len(n_list)
 
-    # Compute the incidence angles in each layer using Snell's law.
-    theta_list = np.empty(N, dtype=complex)
-    theta_list[0] = np.arcsin(n_0 * np.sin(theta_0) / n_list[0])
-    for i in range(1, N):
-        theta_list[i] = np.arcsin(n_list[i - 1] * np.sin(theta_list[i - 1]) / n_list[i])
+    # Computing q_j = n_j*cos(theta_j) is better than using Snell's law
+    # as it avoids issues with sign conventions of arcsin() for complex arguments.
+    q_list = np.empty(N, dtype=complex)
+    for i in range(N):
+        q_list[i] = np.sqrt(n_list[i]**2 - n_0**2 * np.sin(theta_0)**2)
 
     # Exit angle (into the substrate).
-    theta_sub = np.arcsin(n_list[N - 1] * np.sin(theta_list[N - 1]) / n_sub)
+    theta_sub = np.arcsin(n_0 * np.sin(theta_0) / n_sub)
 
     # Phase shifts in each layer (Eq. 4.49).
     beta_list = np.empty(N, dtype=complex)
     for i in range(N):
-        beta_list[i] = (2 * np.pi * n_list[i] / lam) * d_list[i] * np.cos(theta_list[i])
+        beta_list[i] = (2 * np.pi / lam) * d_list[i] * q_list[i]
 
     # Equation 4.55.
     M = np.eye(2, dtype=complex)
     for i in range(N):
-        theta, beta, n = theta_list[i], beta_list[i], n_list[i]
-        M @= np.array([[np.cos(beta), -1j * np.sin(beta) * np.cos(theta) / n],
-                       [-1j * n * np.sin(beta) / np.cos(theta), np.cos(beta)]])
+        q, beta, n = q_list[i], beta_list[i], n_list[i]
+        M @= np.array([[np.cos(beta), -1j * np.sin(beta) * q / n**2],
+                       [-1j * np.sin(beta) * n**2 / q , np.cos(beta)]])
 
     # Equation 4.58.
     A = np.eye(2, dtype=complex)
@@ -88,26 +90,26 @@ def reflectance_s(lam, n_list, d_list, theta_0=0, n_0=1, n_sub=1):
     # Total number of layers.
     N = len(n_list)
 
-    # Compute the incidence angles in each layer using Snell's law.
-    theta_list = np.empty(N, dtype=complex)
-    theta_list[0] = np.arcsin(n_0 * np.sin(theta_0) / n_list[0])
-    for i in range(1, N):
-        theta_list[i] = np.arcsin(n_list[i - 1] * np.sin(theta_list[i - 1]) / n_list[i])
+    # Computing q_j = n_j*cos(theta_j) is better than using Snell's law
+    # as it avoids issues with sign conventions of arcsin() for complex arguments.
+    q_list = np.empty(N, dtype=complex)
+    for i in range(N):
+        q_list[i] = np.sqrt(n_list[i]**2 - n_0**2 * np.sin(theta_0)**2)
 
     # Exit angle (into the substrate).
-    theta_sub = np.arcsin(n_list[N - 1] * np.sin(theta_list[N - 1]) / n_sub)
+    theta_sub = np.arcsin(n_0 * np.sin(theta_0) / n_sub)
 
     # Phase shifts in each layer (Eq. 4.49).
     beta_list = np.empty(N, dtype=complex)
     for i in range(N):
-        beta_list[i] = (2 * np.pi * n_list[i] / lam) * d_list[i] * np.cos(theta_list[i])
+        beta_list[i] = (2 * np.pi / lam) * d_list[i] * q_list[i]
 
     # Equation 4.63.
     M = np.eye(2, dtype=complex)
     for i in range(N):
-        theta, beta, n = theta_list[i], beta_list[i], n_list[i]
-        M @= np.array([[np.cos(beta), -1j * np.sin(beta) / (n * np.cos(theta))],
-                       [-1j * n * np.cos(theta) * np.sin(beta), np.cos(beta)]])
+        q, beta, n = q_list[i], beta_list[i], n_list[i]
+        M @= np.array([[np.cos(beta), -1j * np.sin(beta) / q],
+                       [-1j * np.sin(beta) * q , np.cos(beta)]])
 
     # Equation 4.62.
     A = np.eye(2, dtype=complex)
@@ -120,17 +122,16 @@ def reflectance_s(lam, n_list, d_list, theta_0=0, n_0=1, n_sub=1):
     r = A[1][0] / A[0][0]
     return np.abs(r)**2
 
-def reflectance_to_hex(lam_list,
+def reflectance_to_rgb(lam_list,
                        r_list,
                        illuminant="D65",
                        observer="CIE 1931 2 Degree Standard Observer",
                        clip=True,
+                       unit_range=False,
                        ):
     """
     Convert a reflectance-vs-wavelength curve to a displayable sRGB hex color
     using CIE 1931 color matching functions.
-
-    Written by GPT 5.5.
 
     Parameters
     ----------
@@ -147,8 +148,8 @@ def reflectance_to_hex(lam_list,
 
     Returns
     -------
-    color : str
-        Hex color, e.g. "#8FA34C".
+    color : array-like
+        RGB color, e.g., [0.5, 0.5, 1.0]
     """
     lam_list = np.asarray(lam_list, dtype=float)
     r_list = np.asarray(r_list, dtype=float)
@@ -180,6 +181,39 @@ def reflectance_to_hex(lam_list,
     if clip:
         rgb = np.clip(rgb, 0.0, 1.0)
 
-    rgb8 = np.round(rgb * 255).astype(np.uint8)
+    if unit_range:
+        return rgb
+    else:
+        return np.round(rgb * 255).astype(np.uint8)
+
+def reflectance_to_hex(lam_list,
+                       r_list,
+                       illuminant="D65",
+                       observer="CIE 1931 2 Degree Standard Observer",
+                       clip=True,
+                       ):
+    """
+    Convert a reflectance-vs-wavelength curve to a displayable sRGB hex color
+    using CIE 1931 color matching functions.
+
+    Parameters
+    ----------
+    lam_list : array-like
+        Wavelength samples in nanometers.
+    r_list : array-like
+        Reflectance values at those wavelengths. Usually in [0, 1].
+    illuminant : str
+        Standard illuminant name, default "D65".
+    observer : str
+        CIE observer/color matching function set.
+    clip : bool
+        If True, clips out-of-gamut sRGB values to [0, 1].
+
+    Returns
+    -------
+    color : str
+        Hex color, e.g. "#8FA34C".
+    """
+    rgb8 = reflectance_to_rgb(lam_list, r_list, illuminant, observer, clip)
 
     return "#{:02X}{:02X}{:02X}".format(*rgb8)
